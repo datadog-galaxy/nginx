@@ -21,5 +21,16 @@
     - httpd_can_network_connect
     - httpd_can_network_relay
 
-- name: NGINX | RUN ON STARTUP
-  service: name=nginx enabled=yes state=started
+- name: NGINX | ENABLE AT STARTUP
+  service: name=nginx state=started enabled=yes
+
+- name: NGINX | SITES CONFIG DIRS
+  file: dest=/etc/nginx/{{ item }} state=directory owner=root mode=0755
+  with_items:
+   - sites-available.d
+   - sites-enabled.d
+  notify: reload nginx
+
+- name: NGINX | MAIN CONFIG
+  template: src=nginx.conf dest=/etc/nginx/nginx.conf
+  notify: reload nginx
