@@ -1,3 +1,3 @@
-user: www
+user: nginx
 configs: []
 http_params: []
