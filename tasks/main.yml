@@ -1,30 +1,19 @@
 ---
 
-- name: NGINX | NGINX REPO
-  copy: src=nginx.repo dest=/etc/yum.repos.d/nginx.repo
+- name: NGINX | INCLUDE CENTOS
+  include: centos.yml
+  when: ansible_distribution == 'CentOS'
 
-- name: NGINX | SELINUX BINDINGS
-  yum: name={{item}} state=present
-  when: ansible_selinux.status is defined and ansible_selinux.status == "enabled"
-  with_items:
-   - libsemanage-python
-   - libselinux-python
-
-- name: NGINX | INSTALL NGINX
-  yum: name=nginx state=present
-
-- name: NGINX | SET HTTPD_UNIFIED (SELINUX)
-  seboolean: name={{item}} state=yes persistent=yes
-  when: ansible_selinux.status is defined and ansible_selinux.status == "enabled"
-  with_items:
-    - httpd_unified
-    - httpd_can_network_connect
-    - httpd_can_network_relay
+- name: NGINX | INCLUDE CENTOS
+  include: ubuntu.yml
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
 
 - name: NGINX | ENABLE AT STARTUP
+  become: true
   service: name=nginx state=started enabled=yes
 
 - name: NGINX | SITES CONFIG DIRS
+  become: true
   file: dest=/etc/nginx/{{ item }} state=directory owner=root mode=0755
   with_items:
    - sites-available.d
@@ -32,5 +21,6 @@
   notify: reload nginx
 
 - name: NGINX | MAIN CONFIG
+  become: true
   template: src=nginx.conf dest=/etc/nginx/nginx.conf
   notify: reload nginx
