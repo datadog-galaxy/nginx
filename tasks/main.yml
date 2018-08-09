@@ -14,6 +14,13 @@
 
 - name: NGINX | SITES CONFIG DIRS
   become: true
+  file: dest=/etc/nginx/{{ item }} state=absent
+  with_items:
+   - sites-available
+   - sites-enabled
+
+- name: NGINX | SITES CONFIG DIRS
+  become: true
   file: dest=/etc/nginx/{{ item }} state=directory owner=root mode=0755
   with_items:
    - sites-available.d
